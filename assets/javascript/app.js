@@ -1,87 +1,121 @@
- $(document).ready(function() {
+ $(document).ready(function () {
+
+
+   // Initialize Firebase
+   var config = {
+     apiKey: "AIzaSyBDocuXDALCmSp-6tZAlJgabVrbiWL-ifw",
+     authDomain: "trainreservation-bbe9a.firebaseapp.com",
+     databaseURL: "https://trainreservation-bbe9a.firebaseio.com",
+     projectId: "trainreservation-bbe9a",
+     storageBucket: "trainreservation-bbe9a.appspot.com",
+     messagingSenderId: "234900099960"
+   };
+   firebase.initializeApp(config);
+
+   var database = firebase.database();
+   console.log(database);
+
+
+   //on click events
+   var name, destination, firstTrain, frequency = 0;
+
+   $('#addTrain').on('click', function () {
+     event.preventDefault();
+
+     name = $('#trainID').val().trim();
+     firstTrain = $('#first-train').val().trim();
+     destination = $('#destination').val().trim();
+     frequency = $('#frequency').val().trim();
+     console.log('appended');
+
+     if (name === '' || destination === '' || frequency === '') {
+       alert('Invalid Input types, Try Again')
+     } else {
+
+       database.ref().push({
+         name: name,
+         destination: destination,
+         firstTrain: firstTrain,
+         frequency: frequency,
+         dateAdded: firebase.database.ServerValue.TIMESTAMP
+       });
+     }
+     $('form')[0].reset();
+   });
+
+   //function to add a 'working' clock
+   var update = () => {
+     $('.currTime').html("Current Time: " +
+       moment().format('hh:mm:ss A'));
+     setInterval(update, 1000);
+   }
+   update();
+
+   database.ref().on("child_added", function (childSnapshot) {
+     //Ensures Time clonflicts over calc. microsecends
+     var newTrain = moment(childSnapshot.val().firstTrain, "hh:mm")
+       .subtract(1, "years");
+    //finds difference between times
+     var timeDifference = moment().diff(moment(newTrain), "minutes");
+    //divides the difference with frequency to get remainder
+     var remainder = timeDifference % childSnapshot.val().frequency;
+    
+     var minutesAway = childSnapshot.val().frequency - remainder;
+    //end of calculation to find next train time.
+     var nextTrain = moment().add(minutesAway, "minutes");
+     var arrivalTime = moment(nextTrain).format("hh:mm A");
+
+     let updateRow = () => {   //function to update(append)to the table
+       $("#addRow").append("<tr><td>" + childSnapshot.val().name +
+         "</td><td>" + childSnapshot.val().destination +
+         "</td><td>" + childSnapshot.val().frequency +
+         "</td><td>" + arrivalTime +
+         "</td><td>" + minutesAway + "</td></tr>");
+     }
+     updateRow();
+
+
+     //Figure out how to pull individual minutes away
+     //it's grabbing last pushed obj to data bases time after decrement.
+     let updateMins = () => {
+       setInterval(function () {
+         minutesAway--;
+         //$('#addRow').find('td').eq(4).empty();
+         $('#addRow').find('td').eq(4).text(minutesAway);
+         // $('#addRow tr:nth-child(1)').append(minutesAway);
+       }, 1000);
+     }
+     updateMins();
+
+   }, (error) => {
+     error.code
+     console.log(error.code);
+   });
+
+   //adds a remove button clearing out all of the trains
+   $("body").on('click', ".removebtn", function () {
+     $(this).closest('tr').remove();
+     let rmDatabase = $(this).parent().attr('id');
+     database.ref(rmDatabase).remove();
+   });
+
    
+   /*  var google_auth = function () {
+       console.log('I\'ve made it!');
+       var provider = new firebase.auth.GoogleAuthProvider();
+       firebase.auth().signInWithPopup(provider).then(function (result) {
+         var token = result.credential.accessToken;
+         var user = result.user;
 
-  // Initialize Firebase
-  var config = {
-    apiKey: "AIzaSyBDocuXDALCmSp-6tZAlJgabVrbiWL-ifw",
-    authDomain: "trainreservation-bbe9a.firebaseapp.com",
-    databaseURL: "https://trainreservation-bbe9a.firebaseio.com",
-    projectId: "trainreservation-bbe9a",
-    storageBucket: "trainreservation-bbe9a.appspot.com",
-    messagingSenderId: "234900099960"
-  };
-  firebase.initializeApp(config);
+         console.log(token)
+         console.log(user)
+       }).catch(function (error) {
+         var errorCode = error.code;
+         var errorMessage = error.message;
 
-  var database = firebase.database();
-  console.log(database);
-
-
-  //on click events
-  var name, destination, firstTrain, frequency = 0;
-
-  $('#addTrain').on('click', function(){
-    event.preventDefault();
-
-    name        = $('#trainID').val().trim();
-    firstTrain  = $('#first-train').val().trim();
-    destination = $('#destination').val().trim();
-    frequency   = $('#frequency').val().trim();
-    console.log('appended'); 
-    
-
-
-    database.ref().push({
-      name: name,
-      destination: destination,
-      firstTrain:  firstTrain,
-      frequency:   frequency,
-      dateAdded:   firebase.database.ServerValue.TIMESTAMP
-    });
-    $('form')[0].reset();
-  });
-
-
-
-  database.ref().on("child_added", function(childSnapshot){
-    
-   let current = moment();//calls libray
-   $('.currTime').html("Current Time: " + current.format('h:mm A'))
-
-    //Ensures Time clonflicts over calc. microsecends
-    var newTrain = moment(childSnapshot.val().firstTrain, "hh:mm")
-      .subtract(1, "years");
-    
-    var timeDifference = moment().diff(moment(newTrain), "minutes");
-
-    var remainder = timeDifference % childSnapshot.val().frequency;
-
-    var minutesAway = childSnapshot.val().frequency - remainder;
-
-    var nextTrain   = moment().add(minutesAway, "minutes");
-    var arrivalTime = moment(nextTrain).format("hh:mm A");
-    
-    $("#addRow").append("<tr><td>" + childSnapshot.val().name +
-      "</td><td>" + childSnapshot.val().destination +
-      "</td><td>" + childSnapshot.val().frequency   +
-      "</td><td>" + arrivalTime + 
-      "</td><td>" + minutesAway + "</td></tr>");
-
-      console.log(nextTrain);
-   
-  });
-
-  database.ref().orderByChild("dateAdded").limitToLast(1)
-    .on("child_added", function(snapshot){
-
-      $('#displayName').html(snapshot.val().name);
-      $('#displayEmail').html(snapshot.val().email);
-      $('#displayAge').html(snapshot.val().age);
-      $('#comments').html(snapshot.val().comment);
-    });
-  
-  //clear all text boxes
-  $('#tainID').val("");
-  $('#destination').val("");
-  $('#first-train').val("");
-  $('#frequency').val("");
+         console.log(error.code)
+         console.log(error.message)
+       });
+     });
+      $(document).on('click', '.signIn', google_auth);*/
  });
