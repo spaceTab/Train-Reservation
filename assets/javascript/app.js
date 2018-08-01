@@ -32,13 +32,15 @@
        alert('Invalid Input types, Try Again')
      } else {
 
-       database.ref().push({
+      var trainInfo = {   
          name: name,
          destination: destination,
          firstTrain: firstTrain,
          frequency: frequency,
          dateAdded: firebase.database.ServerValue.TIMESTAMP
-       });
+      }
+      database.ref('train_info').push(trainInfo);
+       
      }
      $('form')[0].reset();
    });
@@ -51,7 +53,7 @@
    }
    update();
 
-   database.ref().on("child_added", function (childSnapshot) {
+   database.ref('train_info').on("child_added", function (childSnapshot) {
      //Ensures Time clonflicts over calc. microsecends
      var newTrain = moment(childSnapshot.val().firstTrain, "hh:mm")
        .subtract(1, "years");
@@ -96,26 +98,26 @@
    $("body").on('click', ".removebtn", function () {
      $(this).closest('tr').remove();
      let rmDatabase = $(this).parent().attr('id');
-     database.ref(rmDatabase).remove();
+     database.ref('train_info').remove(rmDatabase);
    });
 
    
-   /*  var google_auth = function () {
+   $('.signIn').on('click', function() {
+       event.preventDefault();
        console.log('I\'ve made it!');
        var provider = new firebase.auth.GoogleAuthProvider();
        firebase.auth().signInWithPopup(provider).then(function (result) {
-         var token = result.credential.accessToken;
-         var user = result.user;
+         var credToken = result.credential.accessToken;
+         var usr = result.user;
 
-         console.log(token)
-         console.log(user)
+         console.log(credToken)
+         console.log(usr)
        }).catch(function (error) {
-         var errorCode = error.code;
-         var errorMessage = error.message;
+         error.code, error.message;
 
          console.log(error.code)
          console.log(error.message)
        });
      });
-      $(document).on('click', '.signIn', google_auth);*/
+     
  });
