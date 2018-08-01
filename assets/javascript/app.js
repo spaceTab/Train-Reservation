@@ -79,7 +79,7 @@
 
      //Figure out how to pull individual minutes away
      //it's grabbing last pushed obj to data bases time after decrement.
-     let updateMins = () => {
+     /*let updateMins = () => {
        setInterval(function () {
          minutesAway--;
          //$('#addRow').find('td').eq(4).empty();
@@ -87,7 +87,7 @@
          // $('#addRow tr:nth-child(1)').append(minutesAway);
        }, 1000);
      }
-     updateMins();
+     updateMins();*/
 
    }, (error) => {
      error.code
