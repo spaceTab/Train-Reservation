@@ -13,5 +13,5 @@ The Train reservation application where the user can add trains with a name, des
 * Googles Firebase
 * Google Authentication
 
-#Check it out @
-[Train Schedule!](https://spacetab.github.io/Train-Reservation/? "gitpage train-reservation)
+# Check it out @
+[https://spacetab.github.io/Train-Reservation/?]

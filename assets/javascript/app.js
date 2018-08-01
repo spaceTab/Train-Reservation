@@ -78,7 +78,7 @@
 
 
      //Figure out how to pull individual minutes away
-     //it's grabbing last pushed obj to data bases time after decrement.
+     //it's grabbing last pushed obj to databases time after decrement.
      //How could I have gotten this to work?
      /*let updateMins = () => {
        setInterval(function () {
