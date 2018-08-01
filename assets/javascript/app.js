@@ -79,6 +79,7 @@
 
      //Figure out how to pull individual minutes away
      //it's grabbing last pushed obj to data bases time after decrement.
+     //How could I have gotten this to work?
      /*let updateMins = () => {
        setInterval(function () {
          minutesAway--;
@@ -95,6 +96,7 @@
    });
 
    //adds a remove button clearing out all of the trains
+   //works but deletes all Trains from DB. Commented button
    $("body").on('click', ".removebtn", function () {
      $(this).closest('tr').remove();
      let rmDatabase = $(this).parent().attr('id');
@@ -102,6 +104,7 @@
    });
 
    
+   // adds a sign in button to allow for google log-ins!
    $('.signIn').on('click', function() {
        event.preventDefault();
        console.log('I\'ve made it!');
